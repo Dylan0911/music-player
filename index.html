@@ -22,14 +22,18 @@
         }
         
         .music-player {
-            width: 350px;
+            width: 100%;
+            max-width: 350px;
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                        inset 0 2px 10px rgba(255, 255, 255, 0.2);
             padding: 25px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
+            transition: all 0.5s ease;
+            animation: float 6s ease-in-out infinite;
         }
         
         .image-container {
@@ -39,7 +43,8 @@
             border-radius: 15px;
             margin-bottom: 20px;
             position: relative;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 2px 5px rgba(255, 255, 255, 0.2);
         }
         
         .image-container img {
@@ -121,12 +126,15 @@
             margin: 0 auto;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2),
+                 inset 0 -2px 5px rgba(0, 0, 0, 0.1);
             border: none;
         }
         
         .play-button:hover {
             transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3),
+                 inset 0 -2px 5px rgba(0, 0, 0, 0.1);
         }
         
         /* 添加旋转动画 */
@@ -135,13 +143,101 @@
             to { transform: rotate(360deg); }
         }
         
-        .rotating {
-            animation: rotate 15s linear infinite;
-        }
         
         /* 图标样式 */
         .play-icon {
             margin-left: 5px; /* 使播放图标居中 */
+        }
+
+        .nft-button-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .nft-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nft-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+
+
+
+        /* 响应式设计调整 */
+        @media (max-width: 480px) {
+            .music-player {
+                padding: 15px;
+            }
+            
+            .song-details h2 {
+                font-size: 18px;
+            }
+            
+            .song-details p {
+                font-size: 14px;
+            }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .music-player {
+                padding: 10px;
+                border-radius: 15px;
+            }
+            
+            .image-container {
+                margin-bottom: 15px;
+            }
+            
+            .play-button {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            
+            .nft-button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+
+
+        /* 悬浮动画效果 */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                transform: translateY(-10px);
+                box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                transform: translateY(0px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
         }
     </style>
 </head>
@@ -171,6 +267,10 @@
             <!-- 直接使用Unicode字符作为播放/暂停图标 -->
             <span id="play-icon" class="play-icon">▶</span>
         </button>
+
+        <div class="nft-button-container">
+            <a href="https://www.google.com" target="_blank" class="nft-button">View our NFTs</a>
+        </div>
     </div>
 
     <audio id="audio-player">
@@ -237,7 +337,6 @@
             audioPlayer.play();
             isPlaying = true;
             playIcon.textContent = '⏸'; // 暂停图标
-            albumCover.classList.add('rotating');
         }
 
         // 停止播放
@@ -245,7 +344,6 @@
             audioPlayer.pause();
             isPlaying = false;
             playIcon.textContent = '▶'; // 播放图标
-            albumCover.classList.remove('rotating');
         }
 
         // 添加音频事件监听
