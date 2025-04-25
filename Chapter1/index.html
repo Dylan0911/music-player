@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐播放器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8A2387, #E94057, #F27121);
+            display: flex;
+            flex-direction: column; /* 改为纵向排列 */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .music-player {
+            width: 100%;
+            max-width: 350px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                        inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.5s ease;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .image-container {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2),
+                inset 0 2px 5px rgba(255, 255, 255, 0.2);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .song-details {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .song-details h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .song-details p {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .progress-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            height: 6px;
+            width: 100%;
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .progress {
+            background: #fff;
+            border-radius: 5px;
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+        
+        .progress-container:hover .progress-dot {
+            display: block;
+        }
+        
+        .time {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .play-button {
+            background: #fff;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            color: #E94057;
+            font-size: 26px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2),
+                 inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3),
+                 inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 添加旋转动画 */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        
+        /* 图标样式 */
+        .play-icon {
+            margin-left: 0; /* 移除之前的左边距 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 专门针对暂停图标的样式 */
+        .pause-icon {
+            margin-left: -2px; /* 略微向左偏移调整位置 */
+        }
+
+        /* 修改NFT按钮样式，使其位于播放器下方 */
+        .nft-button-container {
+            margin-top: 25px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px; /* 与播放器宽度一致 */
+        }
+
+        .nft-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .nft-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+
+
+
+        /* 响应式设计调整 */
+        @media (max-width: 480px) {
+            .music-player {
+                padding: 15px;
+            }
+            
+            .song-details h2 {
+                font-size: 18px;
+            }
+            
+            .song-details p {
+                font-size: 14px;
+            }
+            
+            .play-button {
+                width: 60px;
+                height: 60px;
+                font-size: 22px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .music-player {
+                padding: 10px;
+                border-radius: 15px;
+            }
+            
+            .image-container {
+                margin-bottom: 15px;
+            }
+            
+            .play-button {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            
+            .nft-button {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+
+
+        /* 悬浮动画效果 */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                transform: translateY(-10px);
+                box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
+            100% {
+                transform: translateY(0px);
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3), 
+                            inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 包装整个播放器和按钮的容器 -->
+    <div class="container">
+        <!-- 播放器部分 -->
+        <div class="music-player">
+            <div class="image-container">
+                <img id="album-cover" src="Chapter1.png" alt="专辑封面">
+            </div>
+            
+            <div class="song-details">
+                <h2>Dreamtime Stories</h2>
+                <p>Byron · Yongxiang Liu</p>
+            </div>
+            
+            <!-- 进度条 -->
+            <div class="progress-container" id="progress-container">
+                <div class="progress" id="progress"></div>
+                <div class="progress-dot" id="progress-dot"></div>
+            </div>
+            
+            <div class="time">
+                <span id="current-time">00:00</span>
+                <span id="duration">00:20</span>
+            </div>
+            
+            <button class="play-button" id="play-btn">
+                <!-- 直接使用Unicode字符作为播放/暂停图标 -->
+                <span id="play-icon" class="play-icon">&#9658;</span>
+            </button>
+        </div>
+
+        <!-- NFT按钮放在播放器外面 -->
+        <div class="nft-button-container">
+            <a href="https://opensea.io/collection/art-nfts-10" target="_blank" class="nft-button">View our NFTs</a>
+        </div>
+    </div>
+
+    <audio id="audio-player">
+        <source src="Chapter1.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // 获取DOM元素
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const albumCover = document.getElementById('album-cover');
+        const audioPlayer = document.getElementById('audio-player');
+        const progressContainer = document.getElementById('progress-container');
+        const progress = document.getElementById('progress');
+        const progressDot = document.getElementById('progress-dot');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationEl = document.getElementById('duration');
+        
+        // 模拟播放状态和时间
+        let isPlaying = false;
+        let currentTime = 0;
+        const duration = 20;
+        let progressInterval;
+        
+        // 格式化时间显示 (秒 -> MM:SS)
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // 更新进度条
+        function updateProgress() {
+            if (isPlaying) {
+                currentTime += 1;
+                if (currentTime >= duration) {
+                    currentTime = 0;
+                    stopPlaying();
+                }
+                
+                const progressPercent = (currentTime / duration) * 100;
+                progress.style.width = `${progressPercent}%`;
+                progressDot.style.left = `${progressPercent}%`;
+                currentTimeEl.textContent = formatTime(currentTime);
+            }
+        }
+        
+        // 设置进度
+        function setProgress(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const clickPercentage = clickX / width;
+            
+            currentTime = clickPercentage * duration;
+            currentTimeEl.textContent = formatTime(currentTime);
+            
+            const progressPercent = (currentTime / duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            progressDot.style.left = `${progressPercent}%`;
+        }
+        
+        // 开始播放
+        // 开始播放
+        function startPlaying() {
+            audioPlayer.play();
+            isPlaying = true;
+            playIcon.innerHTML = '&#10074;&#10074;'; // 暂停图标
+            playIcon.classList.add('pause-icon');
+            playIcon.classList.remove('play-icon');
+        }
+
+        // 停止播放
+        function stopPlaying() {
+            audioPlayer.pause();
+            isPlaying = false;
+            playIcon.innerHTML = '&#9658;'; // 播放图标
+            playIcon.classList.add('play-icon');
+            playIcon.classList.remove('pause-icon');
+        }
+
+        // 添加音频事件监听
+        audioPlayer.addEventListener('timeupdate', function() {
+            currentTime = audioPlayer.currentTime;
+            const progressPercent = (currentTime / audioPlayer.duration) * 100;
+            progress.style.width = `${progressPercent}%`;
+            progressDot.style.left = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(currentTime);
+        });
+
+        // 修改设置进度的函数
+        function setProgress(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            const clickPercentage = clickX / width;
+            
+            audioPlayer.currentTime = clickPercentage * audioPlayer.duration;
+        }
+
+        // 音频加载完成后更新总时长
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+        });
+        
+        // 播放/暂停按钮点击事件
+        playBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                stopPlaying();
+            } else {
+                startPlaying();
+            }
+        });
+        
+        // 进度条点击事件
+        progressContainer.addEventListener('click', setProgress);
+        
+        // 初始化时间显示
+        currentTimeEl.textContent = formatTime(currentTime);
+        durationEl.textContent = formatTime(duration);
+    </script>
+</body>
+</html>
